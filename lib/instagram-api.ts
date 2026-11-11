@@ -4,15 +4,31 @@ export const GRAPH = "https://graph.facebook.com/v24.0"
 // With a system-user token `/me` is the system user, not the IG account, so `me/...`
 // paths are rewritten to `{igId}/...`. ponytail: first assigned account only, single-owner deploy.
 const igIds = new Map<string, Promise<string>>()
+const APP_ID = process.env.META_APP_ID || "29159315927024486"
+
+async function findIgId(token: string): Promise<string> {
+  const t = encodeURIComponent(token)
+  const assigned = await fetch(`${GRAPH}/me/assigned_instagram_accounts?fields=id&access_token=${t}`).then((r) => r.json())
+  if (assigned?.data?.[0]?.id) return String(assigned.data[0].id)
+
+  // Some tokens list no assigned accounts; the IG account id is still in the token's
+  // granular scopes. Read it via debug_token with the app token.
+  const secret = process.env.META_APP_SECRET || process.env.INSTAGRAM_APP_SECRET
+  const debug = secret
+    ? await fetch(`${GRAPH}/debug_token?input_token=${t}&access_token=${APP_ID}|${secret}`).then((r) => r.json())
+    : null
+  const scopes: any[] = debug?.data?.granular_scopes ?? []
+  const id = scopes.find((s) => s.scope?.startsWith("instagram_") && s.target_ids?.length)?.target_ids?.[0]
+  if (id) return String(id)
+
+  throw new Error(
+    `no Instagram account on this token: assigned=${JSON.stringify(assigned?.error ?? assigned)} scopes=${JSON.stringify(debug?.error ?? scopes)}`,
+  )
+}
+
 export function igIdFor(token: string): Promise<string> {
   if (!igIds.has(token)) {
-    const p = fetch(`${GRAPH}/me/assigned_instagram_accounts?fields=id&access_token=${encodeURIComponent(token)}`)
-      .then((r) => r.json())
-      .then((j) => {
-        const id = j?.data?.[0]?.id
-        if (!id) throw new Error(`no assigned Instagram account: ${JSON.stringify(j?.error ?? j)}`)
-        return String(id)
-      })
+    const p = findIgId(token)
     p.catch(() => igIds.delete(token))
     igIds.set(token, p)
   }
