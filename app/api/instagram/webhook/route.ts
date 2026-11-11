@@ -39,6 +39,10 @@ function isValidSignature(rawBody: string, signatureHeader: string | null): bool
   })
 }
 
+// IG account ids (~1.8e16) exceed JS Number precision, so bigint columns parsed as numbers
+// come back off by one and every user_id query misses. Read them as text instead.
+const USER_COLS = "*, id_str:id::text, bid_str:business_account_id::text"
+
 const DEFAULT_PUBLIC_REPLIES = ["Check your DMs! 📥", "Sent! 🔥", "Check inbox! ✨"]
 
 // Max times we'll send the gate card for an unverifiable follow status on a single unlock event.
@@ -207,7 +211,7 @@ export async function POST(request: NextRequest) {
       // ---------- User resolution: direct, payload fallback, token verify ----------
       let { data: user } = await supabase
         .from("users")
-        .select("*")
+        .select(USER_COLS)
         .or(`business_account_id.eq.${webhookId},page_id.eq.${webhookId}`)
         .single()
 
@@ -227,11 +231,11 @@ export async function POST(request: NextRequest) {
           if (candidateId === webhookId) continue
           const { data: fallbackUser } = await supabase
             .from("users")
-            .select("*")
+            .select(USER_COLS)
             .or(`business_account_id.eq.${candidateId},page_id.eq.${candidateId}`)
             .single()
           if (fallbackUser) {
-            await supabase.from("users").update({ page_id: webhookId }).eq("id", fallbackUser.id)
+            await supabase.from("users").update({ page_id: webhookId }).eq("id", fallbackUser.id_str)
             user = fallbackUser
             break
           }
@@ -239,12 +243,12 @@ export async function POST(request: NextRequest) {
       }
 
       if (!user) {
-        const { data: allUsers } = await supabase.from("users").select("*")
+        const { data: allUsers } = await supabase.from("users").select(USER_COLS)
         if (allUsers) {
           for (const candidate of allUsers) {
             if (!candidate.access_token) continue
             if (await verifyIdOwnership(candidate.access_token, webhookId)) {
-              await supabase.from("users").update({ page_id: webhookId }).eq("id", candidate.id)
+              await supabase.from("users").update({ page_id: webhookId }).eq("id", candidate.id_str)
               user = candidate
               break
             }
@@ -256,6 +260,8 @@ export async function POST(request: NextRequest) {
         console.log(`[webhook] ❌ Could not resolve user for ID ${webhookId}`)
         continue
       }
+      user.id = user.id_str
+      user.business_account_id = user.bid_str
 
       const { data: automations } = await supabase
         .from("automations")
