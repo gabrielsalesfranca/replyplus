@@ -16,6 +16,7 @@ import {
   buildFollowGateCard,
 } from "@/lib/instagram-api"
 import { generateAIReply } from "@/lib/ai-reply"
+import { keywordMatches } from "@/lib/keyword-match"
 import { bumpUnlockAttempt, clearUnlockAttempts, unlockKey } from "@/lib/unlock-tracking"
 
 const WEBHOOK_VERIFY_TOKEN = process.env.INSTAGRAM_WEBHOOK_VERIFY_TOKEN
@@ -72,20 +73,6 @@ function parseContent(raw: any) {
 
 function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
-}
-
-function keywordMatches(triggerValue: string, text: string): boolean {
-  return triggerValue
-    .split(",")
-    .map((k: string) => k.trim())
-    .filter(Boolean)
-    .some((k: string) => {
-      try {
-        return new RegExp(`\\b${k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(text)
-      } catch {
-        return text.includes(k.toLowerCase())
-      }
-    })
 }
 
 // ============================================================
