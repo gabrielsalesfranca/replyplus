@@ -13,6 +13,7 @@ const GITHUB_URL = "https://github.com/ayuuxh2/insta-p8"
 
 export function LandingPage() {
   const [stars, setStars] = useState<number | null>(null)
+  const [token, setToken] = useState("")
   const router = useRouter()
 
   useEffect(() => {
@@ -24,7 +25,12 @@ export function LandingPage() {
 
   const handleLogin = async () => {
     // Unified Login, single owner: the server registers the account from IG_ACCESS_TOKEN.
-    const res = await fetch("/api/instagram/callback", { method: "POST" })
+    // Empty token = use IG_ACCESS_TOKEN from env. Pasted token = switch to that account.
+    const res = await fetch("/api/instagram/callback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: token.trim() }),
+    })
     const data = await res.json()
     if (!data.success) return alert(`Login failed: ${data.error}`)
     localStorage.setItem("ig_user_id", data.userId)
@@ -136,6 +142,22 @@ export function LandingPage() {
                 <Send className="w-4 h-4" />
                 Telegram support
               </a>
+            <div className="basis-full max-w-md mt-2">
+              <label htmlFor="ig-token" className="block font-mono-ui text-xs text-neutral-400 mb-2">
+                Trocar de conta: cole o token gerado na Meta (opcional)
+              </label>
+              <input
+                id="ig-token"
+                type="password"
+                autoComplete="off"
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && token.trim()) handleLogin() }}
+                placeholder="EAA..."
+                className="w-full rounded-full bg-transparent border border-white/15 px-5 py-3 font-mono-ui text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#ffe14d]/60"
+              />
+              <p className="mt-2 font-mono-ui text-[11px] text-neutral-500">Vazio = usa a conta configurada na Vercel. Depois clique em Connect Instagram.</p>
+            </div>
             </div>
           </div>
         </section>

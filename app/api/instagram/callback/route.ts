@@ -4,10 +4,12 @@ import { GRAPH, igIdFor } from "@/lib/instagram-api"
 
 // Instagram API with Unified Login, single owner: no OAuth. The owner generates a
 // System User Access Token in the Meta dashboard and sets it as IG_ACCESS_TOKEN.
-// This route registers that account and subscribes it to webhooks.
-export async function POST() {
+// This route registers that account and subscribes it to webhooks. A token pasted in the
+// login screen (body.token) wins over the env var, so switching accounts needs no redeploy.
+export async function POST(request: Request) {
   try {
-    const accessToken = process.env.IG_ACCESS_TOKEN
+    const body = await request.json().catch(() => ({}))
+    const accessToken = (typeof body?.token === "string" && body.token.trim()) || process.env.IG_ACCESS_TOKEN
     if (!accessToken) throw new Error("IG_ACCESS_TOKEN not set")
     const q = `access_token=${encodeURIComponent(accessToken)}`
 
