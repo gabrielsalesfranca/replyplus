@@ -205,6 +205,8 @@ export async function POST(request: NextRequest) {
       }
 
       const webhookId = entry.id
+      // One summary line per delivery (no message text) so silent skips are traceable.
+      console.log(`[webhook] entry ${webhookId}: changes=${(entry.changes || []).map((c: any) => c.field).join(",") || "-"} messaging=${entry.messaging?.length || 0}`)
 
       // ---------- User resolution: direct, payload fallback, token verify ----------
       let { data: user } = await supabase
@@ -267,7 +269,10 @@ export async function POST(request: NextRequest) {
         .eq("user_id", user.id)
         .eq("is_active", true)
 
-      if (!automations?.length) continue
+      if (!automations?.length) {
+        console.log(`[webhook] no active automations for ${user.username}`)
+        continue
+      }
 
       // ============================================================
       //  PART A: COMMENTS
@@ -275,6 +280,7 @@ export async function POST(request: NextRequest) {
       if (entry.changes) {
         for (const change of entry.changes) {
           if (change.field !== "comments" || !change.value?.text) continue
+          console.log(`[webhook] comment on media ${change.value.media?.id} (reply=${Boolean(change.value.parent_id)}, own=${change.value.from?.id === webhookId})`)
 
           const commentId = change.value.id
           const commentText = change.value.text.toLowerCase().trim()
@@ -306,12 +312,18 @@ export async function POST(request: NextRequest) {
                 keywordMatches(a.trigger_value, commentText),
             )
           }
-          if (!match) continue
+          if (!match) {
+            console.log(`[webhook] no comment rule matched (${commentAutomations.length} comment rules)`)
+            continue
+          }
 
                     const content = parseContent(match.response_content)
 
                     // Skip nested replies unless user opted in
-                    if (parentId && content.include_replies !== true) continue
+                    if (parentId && content.include_replies !== true) {
+                      console.log("[webhook] skipped: comment is a reply and rule excludes replies")
+                      continue
+                    }
 
                     console.log(`[webhook] ✅ Comment match: "${match.name}"`)
 
