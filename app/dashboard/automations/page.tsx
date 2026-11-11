@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { ArrowLeft, Bot, FolderPlus, Grid2X2, Inbox, Loader2, Pencil, Plus, Search, Trash2, X } from "lucide-react"
+import { ArrowLeft, FolderPlus, Loader2, Pencil, Plus, Search, Trash2, X } from "lucide-react"
 import { useInstagramSession } from "@/hooks/use-instagram-session"
 import { QuickAutomationForm } from "@/components/dashboard/QuickAutomationForm"
 import { AssistantSettings } from "@/components/dashboard/AssistantSettings"
@@ -63,9 +63,6 @@ export default function AutomationsPage() {
       <div className="mx-auto max-w-6xl"><h1 className="text-2xl font-semibold tracking-tight">Automation</h1></div>
     </div>
     <div className="mx-auto flex max-w-6xl gap-8 px-5 py-8 sm:px-10">
-      <aside className="hidden w-44 shrink-0 space-y-1 md:block">
-        {[{ label: "My Automations", icon: <Bot className="size-4" /> }, { label: "Basic", icon: <Grid2X2 className="size-4" /> }, { label: "Sequences", icon: <Inbox className="size-4" /> }].map((item, index) => <button key={item.label} className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm ${index === 0 ? "bg-black/10 font-medium dark:bg-white/10" : "text-black/60 hover:bg-black/5 dark:text-white/60 dark:hover:bg-white/5"}`}>{item.icon}{item.label}</button>)}
-      </aside>
       <section className="min-w-0 flex-1">
         {edit ? <section>
       <button className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground" onClick={() => setEdit(null)}><ArrowLeft className="size-4" />Back to auto replies</button>

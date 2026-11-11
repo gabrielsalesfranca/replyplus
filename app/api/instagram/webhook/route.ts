@@ -610,10 +610,14 @@ export async function POST(request: NextRequest) {
                         }
                       } else {
                         match = automations.find((a) => a.trigger_type === "postback" && a.trigger_value === triggerValue)
-                        // Quick reply payloads can also match keyword rules
+                        // Quick replies chain flows: tapping a chip also matches keyword rules, by payload
+                        // or by the chip's text ("QR_BRANDING" never matches "branding" as a whole word).
                         if (!match) {
+                          const chipText = event.message?.text || ""
                           match = dmAutomations.find(
-                            (a) => a.trigger_type === "keyword" && keywordMatches(a.trigger_value, triggerValue.toLowerCase()),
+                            (a) =>
+                              a.trigger_type === "keyword" &&
+                              (keywordMatches(a.trigger_value, triggerValue) || keywordMatches(a.trigger_value, chipText)),
                           )
                         }
                       }
