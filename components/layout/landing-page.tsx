@@ -30,13 +30,14 @@ export function LandingPage() {
     busy.current = true
     // Unified Login, single owner: the server registers the account from IG_ACCESS_TOKEN.
     // Empty token = use IG_ACCESS_TOKEN from env. Pasted token = switch to that account.
-    const res = await fetch("/api/instagram/callback", {
+    const data = await fetch("/api/instagram/callback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: token.trim(), igId: igId.trim() }),
     })
-    const data = await res.json()
-    busy.current = false
+      .then((r) => r.json())
+      .catch((e) => ({ error: String(e) }))
+      .finally(() => { busy.current = false })
     if (!data.success) return alert(`Login failed: ${data.error}`)
     localStorage.setItem("ig_user_id", data.userId)
     localStorage.setItem("ig_username", data.username)
