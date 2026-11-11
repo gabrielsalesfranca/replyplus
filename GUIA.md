@@ -89,3 +89,15 @@ A documentação da Meta para o login unificado cobre envio de DM, resposta priv
 - `proxy.ts`: senha no painel. O original não tinha login de verdade; qualquer um com seu ID poderia mandar DMs pelo seu perfil.
 - `lib/keyword-match.ts`: palavras com acento ("olá", "café") não funcionavam. Teste: `node lib/keyword-match.check.ts`.
 - Removidos `.mcp.json` e `.codex`, que apontavam para os bancos do autor original.
+
+## Trocar de conta do Instagram
+
+1. A conta nova precisa ser Profissional (Criador ou Empresa).
+2. Meta → Funções do app → Adicionar pessoas → Testador do Instagram → @ da conta nova:
+   https://developers.facebook.com/apps/29159315927024486/roles/roles/
+3. Logado na conta nova, aceite o convite: https://www.instagram.com/accounts/manage_access/ → Convites de testador.
+4. Meta → API setup with Unified login → passo 2 → Adicionar conta → entre na conta nova → Gerar token → Copiar. Ligue a "Assinatura do webhook" dela:
+   https://developers.facebook.com/apps/29159315927024486/use_cases/customize/Unified-Login-API-Setup/?use_case_enum=INSTAGRAM_BUSINESS&business_id=259173361661536
+5. No painel (https://instaauto-three.vercel.app/dashboard), desative as automações da conta antiga se não quiser que ela continue respondendo.
+6. Clique em sair (seta ao lado do @, canto inferior esquerdo), cole o token no campo "Trocar de conta" e clique em Connect Instagram.
+7. Crie as automações de novo: cada automação pertence à conta em que foi criada.
