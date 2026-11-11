@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
   Zap, MessageCircle, Sparkles, ArrowUpRight, Github, Star,
@@ -15,6 +15,7 @@ export function LandingPage() {
   const [stars, setStars] = useState<number | null>(null)
   const [token, setToken] = useState("")
   const [igId, setIgId] = useState("")
+  const busy = useRef(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -25,6 +26,8 @@ export function LandingPage() {
   }, [])
 
   const handleLogin = async () => {
+    if (busy.current) return // double click fired two logins; the second one failed on the same row
+    busy.current = true
     // Unified Login, single owner: the server registers the account from IG_ACCESS_TOKEN.
     // Empty token = use IG_ACCESS_TOKEN from env. Pasted token = switch to that account.
     const res = await fetch("/api/instagram/callback", {
@@ -33,6 +36,7 @@ export function LandingPage() {
       body: JSON.stringify({ token: token.trim(), igId: igId.trim() }),
     })
     const data = await res.json()
+    busy.current = false
     if (!data.success) return alert(`Login failed: ${data.error}`)
     localStorage.setItem("ig_user_id", data.userId)
     localStorage.setItem("ig_username", data.username)
