@@ -1,4 +1,23 @@
-const GRAPH = "https://graph.instagram.com/v24.0"
+// Instagram API with Unified Login: graph.facebook.com + System User Access Token.
+export const GRAPH = "https://graph.facebook.com/v24.0"
+
+// With a system-user token `/me` is the system user, not the IG account, so `me/...`
+// paths are rewritten to `{igId}/...`. ponytail: first assigned account only, single-owner deploy.
+const igIds = new Map<string, Promise<string>>()
+export function igIdFor(token: string): Promise<string> {
+  if (!igIds.has(token)) {
+    const p = fetch(`${GRAPH}/me/assigned_instagram_accounts?fields=id&access_token=${encodeURIComponent(token)}`)
+      .then((r) => r.json())
+      .then((j) => {
+        const id = j?.data?.[0]?.id
+        if (!id) throw new Error(`no assigned Instagram account: ${JSON.stringify(j?.error ?? j)}`)
+        return String(id)
+      })
+    p.catch(() => igIds.delete(token))
+    igIds.set(token, p)
+  }
+  return igIds.get(token)!
+}
 
 export interface IGButton {
   type: "web_url" | "postback"
@@ -27,6 +46,7 @@ export interface SendResult {
 
 async function post(path: string, token: string, body: any): Promise<SendResult> {
   try {
+    if (path.startsWith("me/")) path = `${await igIdFor(token)}/${path.slice(3)}`
     const res = await fetch(`${GRAPH}/${path}?access_token=${encodeURIComponent(token)}`, {
       method: "POST",
       signal: AbortSignal.timeout(15000),

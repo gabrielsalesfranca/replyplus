@@ -22,10 +22,15 @@ export function LandingPage() {
       .catch(() => {})
   }, [])
 
-  const handleLogin = () => {
-    // Instagram Business Login (Instagram API with Instagram Login). client_id must be the
-    // Instagram app ID from the Instagram product page, not the parent Meta app ID.
-    window.location.href = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID}&redirect_uri=${process.env.NEXT_PUBLIC_INSTAGRAM_REDIRECT_URI}&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments`
+  const handleLogin = async () => {
+    // Unified Login, single owner: the server registers the account from IG_ACCESS_TOKEN.
+    const res = await fetch("/api/instagram/callback", { method: "POST" })
+    const data = await res.json()
+    if (!data.success) return alert(`Login failed: ${data.error}`)
+    localStorage.setItem("ig_user_id", data.userId)
+    localStorage.setItem("ig_username", data.username)
+    if (data.profilePic) localStorage.setItem("ig_profile_pic", data.profilePic)
+    router.push("/dashboard")
   }
 
   const handleTestLogin = () => {

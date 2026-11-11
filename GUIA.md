@@ -2,7 +2,7 @@
 
 Tudo roda no plano gratuito do Supabase e da Vercel. Você vai precisar de três contas: Supabase, Vercel e Meta for Developers (a mesma do Facebook). Cada login e senha é seu; o Claude não digita senhas.
 
-Ordem: Supabase → Vercel (para ganhar o endereço do site) → Meta (que precisa desse endereço) → variáveis na Vercel → login → primeira automação.
+Ordem: Supabase → Vercel (para ganhar o endereço do site) → Meta → variáveis na Vercel → webhooks → primeira automação.
 
 ## 1. Instagram
 
@@ -26,41 +26,49 @@ No app do Instagram: Configurações → Tipo de conta e ferramentas → mudar p
 
 ## 4. Meta for Developers (o app que fala com o Instagram)
 
-1. https://developers.facebook.com/apps → **Criar app** → caso de uso "Gerenciar mensagens e conteúdo no Instagram".
-2. No app: Instagram → **Configuração da API com login do Instagram**.
-   - Anote **ID do app do Instagram** e **Chave secreta do app do Instagram** (não use o ID do app Meta em Configurações → Básico).
-3. Em "Configurar login comercial do Instagram", adicione a URL de redirecionamento OAuth:
-   `https://SEU-ENDERECO.vercel.app/api/instagram/callback`
-4. Em "Configurar webhooks":
-   - URL de callback: `https://SEU-ENDERECO.vercel.app/api/instagram/webhook`
-   - Token de verificação: invente uma frase qualquer (vai em `INSTAGRAM_WEBHOOK_VERIFY_TOKEN`)
-   - Assine os campos: `comments`, `messages`, `messaging_postbacks`, `message_reactions`
-5. Funções do app → Funções → **Testadores do Instagram** → adicione o seu @. Aceite o convite no Instagram: Configurações → Apps e sites → Convites de testador.
-6. Configurações → Básico: preencha a URL da política de privacidade com `https://SEU-ENDERECO.vercel.app/privacy`.
+A Meta não oferece mais o "login do Instagram" para apps novos. Este projeto foi adaptado para a **API do Instagram com login unificado**, usando um token gerado no próprio painel da Meta. Não há tela de login com o Instagram.
+
+1. https://developers.facebook.com/apps → **Criar app** → caso de uso **"Gerenciar mensagens e conteúdo no Instagram"** → portfólio empresarial **Gabriel Sales** (já feito).
+2. Casos de uso → Personalizar → **API setup with Unified login** → passo **1. Configure seu app** → **Criar nova configuração**, mantendo as opções padrão (token de usuário do sistema, expiração "Nunca"). A URL de redirecionamento não é necessária.
+3. **Funções do app** → Funções → **Testadores do Instagram** → adicione o seu @. Aceite o convite no Instagram pela web (instagram.com → Configurações → Apps e sites → Convites de testador).
+4. Passo **2. Gerar tokens de acesso** → adicione a sua conta do Instagram → **Gerar token**. Copie o token e cole **você mesmo** na Vercel, na variável `IG_ACCESS_TOKEN` (passo 5). Nunca cole esse token no chat.
+5. Configurações do app → **Básico** → copie a **Chave secreta do app** (botão "Mostrar"). Ela vai em `META_APP_SECRET`.
+6. Configurações do app → Básico: em URL da política de privacidade, coloque `https://instaauto-three.vercel.app/privacy`.
 
 ## 5. Variáveis na Vercel
 
-Vercel → seu projeto → Settings → Environment Variables. Preencha:
+Vercel → projeto `instaauto` → Settings → Environment Variables. Preencha:
 
 | Variável | Valor |
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | do passo 2 |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | do passo 2 |
 | `SUPABASE_SERVICE_ROLE_KEY` | do passo 2 |
-| `NEXT_PUBLIC_INSTAGRAM_APP_ID` | ID do app do Instagram |
-| `INSTAGRAM_APP_ID` | o mesmo ID |
-| `INSTAGRAM_APP_SECRET` | chave secreta do app do Instagram |
-| `NEXT_PUBLIC_INSTAGRAM_REDIRECT_URI` | `https://SEU-ENDERECO.vercel.app/api/instagram/callback` |
-| `INSTAGRAM_WEBHOOK_VERIFY_TOKEN` | a frase do passo 4 |
+| `IG_ACCESS_TOKEN` | token gerado no passo 4.4 |
+| `META_APP_SECRET` | chave secreta do app (passo 4.5) |
+| `INSTAGRAM_WEBHOOK_VERIFY_TOKEN` | uma frase qualquer inventada por você |
 | `DASHBOARD_PASSWORD` | senha do seu painel (escolha uma forte) |
 
 Depois, faça um novo deploy para as variáveis valerem.
 
-## 6. Usar
+## 6. Webhooks e primeiro uso
 
-1. Abra o endereço. O navegador pede usuário e senha: usuário qualquer, senha = `DASHBOARD_PASSWORD`.
-2. Entre com o Instagram e crie uma automação.
-3. Teste com **outra conta** do Instagram: mande uma DM com a palavra-chave e comente num post.
+1. No painel da Meta, passo **3. Configurar webhooks**:
+   - URL de callback: `https://instaauto-three.vercel.app/api/instagram/webhook`
+   - Token de verificação: a mesma frase de `INSTAGRAM_WEBHOOK_VERIFY_TOKEN`
+   - Clique em **Verificar e salvar** e assine os campos `comments`, `messages`, `messaging_postbacks` e `message_reactions`.
+2. Abra https://instaauto-three.vercel.app. O navegador pede usuário e senha: usuário qualquer, senha = `DASHBOARD_PASSWORD`.
+3. Clique em **Connect Instagram**. O app lê o token, cadastra a sua conta e liga os webhooks dela.
+4. Crie uma automação e teste com **outra conta** do Instagram: mande uma DM com a palavra-chave e comente num post.
+
+### O que ainda não foi testado no login unificado
+
+A documentação da Meta para o login unificado cobre envio de DM, resposta privada a comentário, resposta pública e webhooks. Estas funções extras usam endpoints que a documentação não confirma e serão conferidas no primeiro teste real:
+
+- "Só libera o conteúdo se a pessoa seguir o perfil" (`is_user_follow_business`)
+- Ice Breakers (perguntas prontas na DM, `messenger_profile`)
+- Indicador "digitando…" e "visto" (`sender_action`)
+- Buscar o @ de quem mandou a DM, usado na caixa de entrada
 
 ## Palavras-chave
 
@@ -77,6 +85,7 @@ Depois, faça um novo deploy para as variáveis valerem.
 
 ## O que foi mudado em relação ao projeto original
 
+- Adaptado para a API do Instagram com login unificado (`graph.facebook.com` e token do painel em `IG_ACCESS_TOKEN`), porque a Meta não oferece mais o login do Instagram para apps novos.
 - `proxy.ts`: senha no painel. O original não tinha login de verdade; qualquer um com seu ID poderia mandar DMs pelo seu perfil.
 - `lib/keyword-match.ts`: palavras com acento ("olá", "café") não funcionavam. Teste: `node lib/keyword-match.check.ts`.
 - Removidos `.mcp.json` e `.codex`, que apontavam para os bancos do autor original.
