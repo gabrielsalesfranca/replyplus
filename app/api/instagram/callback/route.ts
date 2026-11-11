@@ -13,8 +13,11 @@ export async function POST(request: Request) {
     if (!accessToken) throw new Error("IG_ACCESS_TOKEN not set")
     const q = `access_token=${encodeURIComponent(accessToken)}`
 
-    const igId = await igIdFor(accessToken)
+    const explicitId = typeof body?.igId === "string" ? body.igId.replace(/\D/g, "") : ""
+    const igId = explicitId || (await igIdFor(accessToken))
     const me = await fetch(`${GRAPH}/${igId}?fields=username,profile_picture_url&${q}`).then((r) => r.json()).catch(() => ({}))
+    // With a typed-in id, refuse to save unless the token can actually read that account.
+    if (explicitId && !me?.username) throw new Error(`token can't access account ${igId}: ${JSON.stringify(me?.error ?? me)}`)
     const username: string = me?.username || `user_${igId}`
     const profilePic: string | null = me?.profile_picture_url || null
 

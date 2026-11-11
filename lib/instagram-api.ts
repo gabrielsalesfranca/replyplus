@@ -1,3 +1,5 @@
+import { getSupabaseAdmin } from "@/lib/supabase-admin"
+
 // Instagram API with Unified Login: graph.facebook.com + System User Access Token.
 export const GRAPH = "https://graph.facebook.com/v24.0"
 
@@ -7,6 +9,15 @@ const igIds = new Map<string, Promise<string>>()
 const APP_ID = process.env.META_APP_ID || "29159315927024486"
 
 async function findIgId(token: string): Promise<string> {
+  // Already connected? The users row maps token -> account id (text: ids exceed JS Number precision).
+  const { data: saved } = await getSupabaseAdmin()
+    .from("users")
+    .select("bid:business_account_id::text")
+    .eq("access_token", token)
+    .limit(1)
+    .maybeSingle()
+  if (saved?.bid) return saved.bid
+
   const t = encodeURIComponent(token)
   const assigned = await fetch(`${GRAPH}/me/assigned_instagram_accounts?fields=id&access_token=${t}`).then((r) => r.json())
   if (assigned?.data?.[0]?.id) return String(assigned.data[0].id)

@@ -14,6 +14,7 @@ const GITHUB_URL = "https://github.com/ayuuxh2/insta-p8"
 export function LandingPage() {
   const [stars, setStars] = useState<number | null>(null)
   const [token, setToken] = useState("")
+  const [igId, setIgId] = useState("")
   const router = useRouter()
 
   useEffect(() => {
@@ -29,7 +30,7 @@ export function LandingPage() {
     const res = await fetch("/api/instagram/callback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: token.trim() }),
+      body: JSON.stringify({ token: token.trim(), igId: igId.trim() }),
     })
     const data = await res.json()
     if (!data.success) return alert(`Login failed: ${data.error}`)
@@ -156,7 +157,16 @@ export function LandingPage() {
                 placeholder="EAA..."
                 className="w-full rounded-full bg-transparent border border-white/15 px-5 py-3 font-mono-ui text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#ffe14d]/60"
               />
-              <p className="mt-2 font-mono-ui text-[11px] text-neutral-500">Vazio = usa a conta configurada na Vercel. Depois clique em Connect Instagram.</p>
+              <input
+                aria-label="ID da conta do Instagram (opcional)"
+                inputMode="numeric"
+                autoComplete="off"
+                value={igId}
+                onChange={(e) => setIgId(e.target.value)}
+                placeholder="ID da conta (opcional), ex: 17841480390195239"
+                className="mt-2 w-full rounded-full bg-transparent border border-white/15 px-5 py-3 font-mono-ui text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#ffe14d]/60"
+              />
+              <p className="mt-2 font-mono-ui text-[11px] text-neutral-500">Vazio = usa a conta configurada na Vercel. O ID aparece embaixo do @ na Meta (passo 2). Depois clique em Connect Instagram.</p>
             </div>
             </div>
           </div>
