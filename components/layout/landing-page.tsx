@@ -16,6 +16,19 @@ export function LandingPage() {
   const [token, setToken] = useState("")
   const [igId, setIgId] = useState("")
   const busy = useRef(false)
+  const [accounts, setAccounts] = useState<{ id: string; username: string }[]>([])
+
+  useEffect(() => {
+    fetch("/api/instagram/accounts").then((r) => r.json()).then((d) => setAccounts(d.accounts ?? [])).catch(() => {})
+  }, [])
+
+  // Already-connected account: its token is saved, so switching is just picking the session.
+  const enterAs = (a: { id: string; username: string }) => {
+    localStorage.setItem("ig_user_id", a.id)
+    localStorage.setItem("ig_username", a.username)
+    localStorage.removeItem("ig_profile_pic")
+    router.push("/dashboard")
+  }
   const router = useRouter()
 
   useEffect(() => {
@@ -148,6 +161,20 @@ export function LandingPage() {
                 <Send className="w-4 h-4" />
                 Telegram support
               </a>
+            {accounts.length > 0 && (
+              <div className="basis-full flex flex-wrap items-center gap-2 mt-2">
+                <span className="font-mono-ui text-xs text-neutral-400">Entrar como:</span>
+                {accounts.map((a) => (
+                  <button
+                    key={a.id}
+                    onClick={() => enterAs(a)}
+                    className="font-mono-ui text-sm text-white border border-white/20 rounded-full px-4 py-2 hover:border-[#ffe14d]/60 hover:text-[#ffe14d] transition-colors"
+                  >
+                    @{a.username}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="basis-full max-w-md mt-2">
               <label htmlFor="ig-token" className="block font-mono-ui text-xs text-neutral-400 mb-2">
                 Trocar de conta: cole o token gerado na Meta (opcional)
