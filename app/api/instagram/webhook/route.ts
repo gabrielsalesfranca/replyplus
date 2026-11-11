@@ -190,8 +190,6 @@ export async function POST(request: NextRequest) {
       }
     }
     const body = JSON.parse(rawBody)
-    // TEMP debug: see Unified Login payload shape. Remove after first working reply.
-    console.log("[webhook] raw:", rawBody.slice(0, 3000))
     if (!body.entry) return NextResponse.json({ ok: true })
     // Ensure schema is up-to-date on every cold start (idempotent, no-op if all tables exist)
     ensureSchema().catch((e) => console.warn("[webhook] ensureSchema failed:", e?.message))
