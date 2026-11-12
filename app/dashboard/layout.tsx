@@ -40,7 +40,7 @@ export default function DashboardLayout({
             <div className={`hidden md:flex md:flex-col md:fixed md:inset-y-0 z-50 transition-[width] duration-200 ${sidebarCollapsed ? "md:w-[72px]" : "md:w-64"}`}>
                 <Sidebar
                     className="h-full border-r border-sidebar-border bg-sidebar text-sidebar-foreground"
-                    username={username || "User"}
+                    username={username || "usuário"}
                     profilePic={profilePic}
                     onLogout={logout}
                     collapsed={sidebarCollapsed}
@@ -53,7 +53,7 @@ export default function DashboardLayout({
                 {/* Mobile Header (Visible only on small screens) */}
                 <header className="md:hidden h-16 border-b border-border bg-background flex items-center justify-between px-4 sticky top-0 z-40">
                     <span className="font-serif-display text-xl text-foreground">ReplyPlus</span>
-                    <MobileNav username={username || "User"} profilePic={profilePic} onLogout={logout} />
+                    <MobileNav username={username || "usuário"} profilePic={profilePic} onLogout={logout} />
                 </header>
 
                 <main className="dashboard-canvas flex-1 relative overflow-auto">

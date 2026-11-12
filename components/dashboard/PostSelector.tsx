@@ -47,7 +47,7 @@ export function PostSelector({
       const res = await fetch(`/api/instagram/media?userId=${userId}`)
       const json = await res.json()
       if (!res.ok) {
-        throw new Error(json.error || "Failed to load Instagram media")
+        throw new Error(json.error || "Não foi possível carregar as mídias do Instagram")
       }
       const items: InstagramMediaItem[] = Array.isArray(json.data)
         ? json.data
@@ -62,7 +62,7 @@ export function PostSelector({
       }
     } catch (err: any) {
       console.error("[PostSelector] Error fetching media:", err)
-      setError(err?.message || "Could not fetch Instagram posts. Please retry.")
+      setError(err?.message || "Não foi possível carregar os posts do Instagram. Tente novamente.")
     } finally {
       setLoading(false)
     }
@@ -142,7 +142,7 @@ export function PostSelector({
           }`}
         >
           <Globe className="w-3.5 h-3.5 text-accent-blue shrink-0" />
-          <span>All Posts & Reels</span>
+          <span>Todos os posts e reels</span>
         </button>
         <button
           type="button"
@@ -154,7 +154,7 @@ export function PostSelector({
           }`}
         >
           <Film className="w-3.5 h-3.5 text-accent-yellow shrink-0" />
-          <span>Specific Post / Reel</span>
+          <span>Post / reel específico</span>
         </button>
       </div>
 
@@ -182,7 +182,7 @@ export function PostSelector({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-accent-yellow-foreground bg-accent-yellow/10 px-1.5 py-0.5 rounded">
-                    Selected Post
+                    Post selecionado
                   </span>
                   {currentSelectedMedia.permalink && (
                     <a
@@ -190,14 +190,14 @@ export function PostSelector({
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-foreground transition-colors"
-                      title="View on Instagram"
+                      title="Ver no Instagram"
                     >
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   )}
                 </div>
                 <p className="text-xs text-foreground font-medium line-clamp-1">
-                  {currentSelectedMedia.caption || "Instagram Post #" + currentSelectedMedia.id.slice(-6)}
+                  {currentSelectedMedia.caption || "Post do Instagram #" + currentSelectedMedia.id.slice(-6)}
                 </p>
                 <p className="text-[10px] text-muted-foreground font-mono-ui mt-0.5">
                   ID: {currentSelectedMedia.id}
@@ -210,12 +210,12 @@ export function PostSelector({
                   onClick={() => setIsBrowsing(true)}
                   className="px-2.5 py-1.5 rounded-md border border-border bg-muted/40 hover:bg-accent text-xs font-medium text-foreground transition-colors"
                 >
-                  Change
+                  Trocar
                 </button>
                 <button
                   type="button"
                   onClick={handleClearSelection}
-                  title="Deselect post"
+                  title="Remover seleção"
                   className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                 >
                   <X className="w-4 h-4" />
@@ -226,7 +226,7 @@ export function PostSelector({
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-xs font-medium text-foreground">
-                  Select the post or reel for this automation:
+                  Selecione o post ou reel desta automação:
                 </p>
                 {currentSelectedMedia && (
                   <button
@@ -234,7 +234,7 @@ export function PostSelector({
                     onClick={() => setIsBrowsing(false)}
                     className="text-[11px] text-muted-foreground hover:text-foreground font-medium underline"
                   >
-                    Keep selected
+                    Manter seleção
                   </button>
                 )}
               </div>
@@ -246,7 +246,7 @@ export function PostSelector({
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search caption..."
+                    placeholder="Buscar na legenda..."
                     className="w-full h-8 pl-8 pr-3 text-xs bg-muted/40 border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                   {searchQuery && (
@@ -266,7 +266,7 @@ export function PostSelector({
                     onClick={() => setFilterType("ALL")}
                     className={`px-2 py-1 rounded ${filterType === "ALL" ? "bg-card text-foreground font-semibold shadow-2xs" : "text-muted-foreground hover:text-foreground"}`}
                   >
-                    All
+                    Todos
                   </button>
                   <button
                     type="button"
@@ -288,7 +288,7 @@ export function PostSelector({
                   type="button"
                   onClick={fetchMedia}
                   disabled={loading}
-                  title="Refresh Instagram feed"
+                  title="Atualizar feed do Instagram"
                   className="h-8 w-8 rounded-lg border border-border bg-muted/30 hover:bg-accent flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0 transition-colors disabled:opacity-40"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-accent-yellow" : ""}`} />
@@ -315,14 +315,14 @@ export function PostSelector({
                     onClick={fetchMedia}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card text-xs font-medium text-foreground hover:bg-accent transition-colors"
                   >
-                    <RefreshCw className="w-3 h-3" /> Retry Loading Feed
+                    <RefreshCw className="w-3 h-3" /> Tentar carregar de novo
                   </button>
                 </div>
               ) : filteredList.length === 0 ? (
                 <div className="p-6 text-center rounded-xl border border-dashed border-border bg-muted/20 space-y-2">
                   <Film className="w-6 h-6 text-muted-foreground mx-auto" />
                   <p className="text-xs text-muted-foreground">
-                    {searchQuery ? "No posts match your search query." : "No posts found in your Instagram feed."}
+                    {searchQuery ? "Nenhum post encontrado para essa busca." : "Nenhum post encontrado no seu feed do Instagram."}
                   </p>
                   <div className="flex items-center justify-center gap-2 pt-1">
                     {searchQuery && (
@@ -331,7 +331,7 @@ export function PostSelector({
                         onClick={() => setSearchQuery("")}
                         className="text-xs text-primary underline"
                       >
-                        Clear search
+                        Limpar busca
                       </button>
                     )}
                     <button
@@ -339,7 +339,7 @@ export function PostSelector({
                       onClick={fetchMedia}
                       className="text-xs text-muted-foreground hover:text-foreground underline"
                     >
-                      Refresh
+                      Atualizar
                     </button>
                   </div>
                 </div>
@@ -387,7 +387,7 @@ export function PostSelector({
 
                         <div className="absolute inset-x-0 bottom-0 px-1.5 py-1 pointer-events-none">
                           <p className="text-[9px] text-white/95 line-clamp-1 font-sans leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-                            {item.caption || "Instagram post"}
+                            {item.caption || "Post do Instagram"}
                           </p>
                         </div>
                       </button>

@@ -102,9 +102,9 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
                     <Send className="w-6 h-6 text-muted-foreground" />
                 </div>
                 <div>
-                    <h3 className="text-lg font-semibold text-foreground">Your conversations</h3>
+                    <h3 className="text-lg font-semibold text-foreground">Suas conversas</h3>
                     <p className="text-muted-foreground text-sm max-w-xs mx-auto mt-2">
-                        Select a conversation from the left to start chatting live with your audience.
+                        Escolha uma conversa à esquerda para falar ao vivo com seu público.
                     </p>
                 </div>
             </div>
@@ -126,14 +126,14 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
                         <h3 className="font-bold text-foreground text-sm truncate">@{recipientName}</h3>
                         <span className="hidden md:flex items-center gap-1.5 text-[10px] text-success">
                             <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                            Online via Instagram
+                            Online pelo Instagram
                         </span>
                     </div>
                 </div>
                 <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hidden md:flex" aria-label="Call"><Phone className="w-4 h-4" /></Button>
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hidden md:flex" aria-label="Video"><Video className="w-4 h-4" /></Button>
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" aria-label="More"><MoreVertical className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hidden md:flex" aria-label="Ligar"><Phone className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hidden md:flex" aria-label="Chamada de vídeo"><Video className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" aria-label="Mais opções"><MoreVertical className="w-4 h-4" /></Button>
                 </div>
             </div>
 
@@ -172,7 +172,7 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
             {/* Automation Popup */}
             {isAutomationOpen && (
                 <div className="absolute bottom-20 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-popover border border-border rounded-xl shadow-lg p-2 z-50">
-                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Quick Responses</div>
+                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Respostas rápidas</div>
                     <div className="max-h-60 overflow-y-auto space-y-1">
                         {automations.map(auto => (
                             <button
@@ -185,7 +185,7 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
                             </button>
                         ))}
                         {automations.length === 0 && (
-                            <div className="px-3 py-4 text-center text-muted-foreground text-xs">No automations found.</div>
+                            <div className="px-3 py-4 text-center text-muted-foreground text-xs">Nenhuma automação encontrada.</div>
                         )}
                     </div>
                 </div>
@@ -198,7 +198,7 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
                         size="icon"
                         variant="ghost"
                         onClick={() => setIsAutomationOpen(!isAutomationOpen)}
-                        aria-label="Toggle quick responses"
+                        aria-label="Mostrar respostas rápidas"
                         className={cn(
                             "h-9 w-9 hover:bg-accent text-muted-foreground hover:text-accent-yellow-foreground dark:hover:text-accent-yellow transition-colors shrink-0",
                             isAutomationOpen && "text-foreground bg-accent"
@@ -208,7 +208,7 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
                     </Button>
                     <input
                         className="flex-1 bg-muted px-3 py-2 text-sm text-foreground focus:outline-none placeholder:text-muted-foreground min-w-0"
-                        placeholder="Type a message..."
+                        placeholder="Escreva uma mensagem..."
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
                         onKeyDown={(e) => {
@@ -223,7 +223,7 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
                         onClick={() => handleSendMessage()}
                         disabled={sending || !inputText.trim()}
                         size="icon"
-                        aria-label="Send message"
+                        aria-label="Enviar mensagem"
                         className="h-9 w-9 bg-primary text-primary-foreground hover:opacity-90 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                     >
                         {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}

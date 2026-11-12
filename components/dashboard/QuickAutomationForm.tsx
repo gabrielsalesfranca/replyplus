@@ -33,7 +33,7 @@ export function QuickAutomationForm({ userId, initialSource, onSuccess }: {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
-          name: "Reply to " + keyword.trim(),
+          name: "Resposta para " + keyword.trim(),
           trigger_source: source,
           trigger_type: source === "story" ? "reply" : "keyword",
           trigger_value: keyword.trim(),
@@ -41,14 +41,14 @@ export function QuickAutomationForm({ userId, initialSource, onSuccess }: {
           specific_media_id: source === "comment" ? selectedMediaId : null,
         }),
       })
-      if (!response.ok) throw new Error("Could not save. Please try again.")
+      if (!response.ok) throw new Error("Não foi possível salvar. Tente novamente.")
       setKeyword("")
       setAnswer("")
       setSelectedMediaId(null)
       setSelectedMedia(null)
       onSuccess(source)
     } catch {
-      setError("Could not save. Check your connection and try again.")
+      setError("Não foi possível salvar. Verifique sua conexão e tente novamente.")
     } finally {
       submitting.current = false
       setSaving(false)
@@ -58,7 +58,7 @@ export function QuickAutomationForm({ userId, initialSource, onSuccess }: {
   return <form onSubmit={save} className="overflow-hidden rounded-xl border border-border bg-card">
     <fieldset disabled={saving} className="min-w-0">
       <label className="flex items-center gap-3 border-b border-border px-4 py-3">
-        <span className="shrink-0 text-xs text-muted-foreground">Reply to</span>
+        <span className="shrink-0 text-xs text-muted-foreground">Responder a</span>
         <select
           value={source}
           onChange={event => {
@@ -71,18 +71,18 @@ export function QuickAutomationForm({ userId, initialSource, onSuccess }: {
           }}
           className="rounded-md bg-card py-1 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <option value="dm">Direct messages</option>
-          <option value="comment">Post comments</option>
-          <option value="story">Story replies</option>
+          <option value="dm">Mensagens diretas (DM)</option>
+          <option value="comment">Comentários em posts</option>
+          <option value="story">Respostas aos stories</option>
         </select>
       </label>
 
       {source === "comment" && (
         <div className="border-b border-border bg-muted/20 p-4 sm:p-5">
           <div className="mb-3">
-            <p className="text-sm font-medium text-foreground">Choose where this runs</p>
+            <p className="text-sm font-medium text-foreground">Escolha onde isso funciona</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Apply this reply to every post/reel, or pick one specific post or reel.
+              Aplique esta resposta a todos os posts/reels ou escolha um post ou reel específico.
             </p>
           </div>
           <PostSelector
@@ -98,24 +98,24 @@ export function QuickAutomationForm({ userId, initialSource, onSuccess }: {
 
       <div className="grid sm:grid-cols-[1fr_2fr]">
         <label className="block border-b border-border p-4 sm:border-b-0 sm:border-r">
-          <span className="text-xs font-medium text-muted-foreground">When they say</span>
+          <span className="text-xs font-medium text-muted-foreground">Quando disserem</span>
           <input
             required
             value={keyword}
             onChange={event => setKeyword(event.target.value)}
-            placeholder="e.g. price"
+            placeholder="ex.: preço"
             className="mt-2 w-full rounded-sm bg-card py-1 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </label>
         <label className="block p-4">
-          <span className="text-xs font-medium text-muted-foreground">Send this reply</span>
+          <span className="text-xs font-medium text-muted-foreground">Enviar esta resposta</span>
           <textarea
             required
             maxLength={1000}
             rows={3}
             value={answer}
             onChange={event => setAnswer(event.target.value)}
-            placeholder="Our plans start at ₹499. Here’s the link…"
+            placeholder="Nossos planos começam em R$ 49. Aqui está o link…"
             className="mt-2 w-full resize-y rounded-sm bg-card py-1 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </label>
@@ -125,18 +125,18 @@ export function QuickAutomationForm({ userId, initialSource, onSuccess }: {
         <p className="text-xs text-muted-foreground">
           {source === "comment"
             ? selectedMediaId
-              ? "Triggers on selected post only · Reply sent by DM"
-              : "Triggers on any post or reel · Reply sent by DM"
+              ? "Dispara só no post selecionado · Resposta enviada por DM"
+              : "Dispara em qualquer post ou reel · Resposta enviada por DM"
             : source === "story"
-            ? "Matches keywords in story replies"
-            : "Matches keywords in incoming DMs"}
+            ? "Busca palavras-chave nas respostas aos stories"
+            : "Busca palavras-chave nas DMs recebidas"}
         </p>
         <button
           disabled={saving || !keyword.trim() || !answer.trim()}
           className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
           {saving && <Loader2 className="size-4 animate-spin" />}
-          {saving ? "Saving…" : "Save reply"}
+          {saving ? "Salvando…" : "Salvar resposta"}
         </button>
       </div>
       {error && <p role="alert" className="px-4 pb-3 text-sm text-destructive">{error}</p>}
