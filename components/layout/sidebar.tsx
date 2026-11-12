@@ -36,9 +36,9 @@ export function Sidebar({ className, username = "creator", profilePic, onLogout,
   return (
     <aside className={cn("flex flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground", className)} {...props}>
       <div className={cn("flex h-16 items-center border-b border-sidebar-border", collapsed ? "justify-center" : "px-3")}>
-        <Link href="/dashboard" onClick={onNavigate} aria-label="insta-p8 home" className={cn("flex items-center gap-2.5 rounded-lg", !collapsed && "px-2")}>
+        <Link href="/dashboard" onClick={onNavigate} aria-label="InstaAuto home" className={cn("flex items-center gap-2.5 rounded-lg", !collapsed && "px-2")}>
           <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"><Zap className="size-4" /></span>
-          {!collapsed && <span className="text-sm font-semibold tracking-tight">insta-p8</span>}
+          {!collapsed && <span className="text-sm font-semibold tracking-tight">InstaAuto</span>}
         </Link>
         {!collapsed && onToggle && <button onClick={onToggle} aria-label="Collapse sidebar" title="Collapse sidebar" className="ml-auto flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"><ChevronLeft className="size-4" /></button>}
       </div>
@@ -60,7 +60,7 @@ export function Sidebar({ className, username = "creator", profilePic, onLogout,
           <img src="/icons/profile.svg" alt="" className="size-4 shrink-0 dark:invert" />
           {!collapsed && <span>Preferences</span>}
         </Link>
-        <a href="https://t.me/instagramautomationp8" target="_blank" rel="noopener noreferrer" aria-label={collapsed ? "Help and support" : undefined} title={collapsed ? "Help and support" : undefined} className={itemClass(false)}>
+        <a href="__REPO_URL__" target="_blank" rel="noopener noreferrer" aria-label={collapsed ? "Help and support" : undefined} title={collapsed ? "Help and support" : undefined} className={itemClass(false)}>
           <LifeBuoy className="size-4 shrink-0" />
           {!collapsed && <span>Help and support</span>}
         </a>

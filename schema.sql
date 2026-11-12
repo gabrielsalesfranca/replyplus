@@ -40,6 +40,15 @@ CREATE TABLE IF NOT EXISTS public.users (
   updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+-- App settings saved from the setup screen (Meta app secret, webhook verify token).
+-- RLS on with no policies: only the server's service-role key can read it.
+CREATE TABLE IF NOT EXISTS public.app_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
+
 -- ==========================================
 -- 2. Table: public.conversations
 -- ==========================================

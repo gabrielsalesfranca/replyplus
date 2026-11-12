@@ -3,7 +3,7 @@
 import crypto from "crypto"
 import { type NextRequest, NextResponse } from "next/server"
 import { getSupabaseServerClient } from "@/lib/supabase-server"
-import { ensureSchema } from "@/lib/supabase-migrate"
+import { getSetting } from "@/lib/settings"
 import {
   sendTextDM,
   sendCardDM,
@@ -20,23 +20,16 @@ import { generateAIReply } from "@/lib/ai-reply"
 import { keywordMatches } from "@/lib/keyword-match"
 import { bumpUnlockAttempt, clearUnlockAttempts, unlockKey } from "@/lib/unlock-tracking"
 
-const WEBHOOK_VERIFY_TOKEN = process.env.INSTAGRAM_WEBHOOK_VERIFY_TOKEN
-// Meta signs every webhook POST with HMAC-SHA256 of the raw body. Depending on app setup the
-// signing key is the Instagram app secret or the parent Meta app secret, so accept either.
-const APP_SECRETS = [process.env.INSTAGRAM_APP_SECRET, process.env.META_APP_SECRET].filter(
-  (s): s is string => Boolean(s),
-)
-
-function isValidSignature(rawBody: string, signatureHeader: string | null): boolean {
-  if (APP_SECRETS.length === 0 || !signatureHeader?.startsWith("sha256=")) return false
+// Meta signs every webhook POST with HMAC-SHA256 of the raw body, keyed by the Meta app secret
+// (env META_APP_SECRET or the one saved on the setup screen).
+function isValidSignature(rawBody: string, signatureHeader: string | null, secret: string | null): boolean {
+  if (!secret || !signatureHeader?.startsWith("sha256=")) return false
   const received = signatureHeader.slice("sha256=".length)
-  return APP_SECRETS.some((secret) => {
-    const expected = crypto.createHmac("sha256", secret).update(rawBody, "utf8").digest("hex")
-    return (
-      received.length === expected.length &&
-      crypto.timingSafeEqual(Buffer.from(received, "utf8"), Buffer.from(expected, "utf8"))
-    )
-  })
+  const expected = crypto.createHmac("sha256", secret).update(rawBody, "utf8").digest("hex")
+  return (
+    received.length === expected.length &&
+    crypto.timingSafeEqual(Buffer.from(received, "utf8"), Buffer.from(expected, "utf8"))
+  )
 }
 
 // IG account ids (~1.8e16) exceed JS Number precision, so bigint columns parsed as numbers
@@ -55,7 +48,8 @@ export async function GET(request: NextRequest) {
   const token = searchParams.get("hub.verify_token")
   const challenge = searchParams.get("hub.challenge")
 
-  if (mode === "subscribe" && WEBHOOK_VERIFY_TOKEN && token === WEBHOOK_VERIFY_TOKEN && challenge) {
+  const verifyToken = await getSetting("webhook_verify_token")
+  if (mode === "subscribe" && verifyToken && token === verifyToken && challenge) {
     return new NextResponse(challenge, { status: 200 })
   }
   return NextResponse.json({ error: "Invalid token" }, { status: 403 })
@@ -173,15 +167,13 @@ export async function POST(request: NextRequest) {
   try {
     const rawBody = await request.text()
     const signature = request.headers.get("x-hub-signature-256")
-    if (!isValidSignature(rawBody, signature)) {
+    const secret = await getSetting("meta_app_secret")
+    if (!isValidSignature(rawBody, signature, secret)) {
       // Hash prefixes are safe to log and let us tell a wrong secret from a mutated body.
-      const computed = APP_SECRETS.map(
-        (s, i) =>
-          `${i === 0 ? "IG" : "META"}:${crypto.createHmac("sha256", s).update(rawBody, "utf8").digest("hex").slice(0, 12)}`,
-      ).join(" ")
+      const computed = secret ? crypto.createHmac("sha256", secret).update(rawBody, "utf8").digest("hex").slice(0, 12) : "no secret"
       console.error(
         `[webhook] 401: ${!signature ? "no x-hub-signature-256 header" : "signature mismatch"}; ` +
-          `secrets configured: ${APP_SECRETS.length}; received=${signature?.slice(7, 19) ?? "-"} computed=[${computed}] bodyLen=${rawBody.length}`,
+          `received=${signature?.slice(7, 19) ?? "-"} computed=${computed} bodyLen=${rawBody.length}`,
       )
       if (process.env.DISABLE_WEBHOOK_SIGNATURE_CHECK === "true") {
         console.warn("[webhook] SIGNATURE CHECK BYPASSED — remove DISABLE_WEBHOOK_SIGNATURE_CHECK after debugging")
@@ -191,8 +183,6 @@ export async function POST(request: NextRequest) {
     }
     const body = JSON.parse(rawBody)
     if (!body.entry) return NextResponse.json({ ok: true })
-    // Ensure schema is up-to-date on every cold start (idempotent, no-op if all tables exist)
-    ensureSchema().catch((e) => console.warn("[webhook] ensureSchema failed:", e?.message))
     const supabase = await getSupabaseServerClient()
 
     for (const entry of body.entry) {

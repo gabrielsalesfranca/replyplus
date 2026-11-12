@@ -52,7 +52,7 @@ export default function DashboardLayout({
             <div className={`flex-1 flex flex-col transition-[padding] duration-200 ${sidebarCollapsed ? "md:pl-[72px]" : "md:pl-64"}`}>
                 {/* Mobile Header (Visible only on small screens) */}
                 <header className="md:hidden h-16 border-b border-border bg-background flex items-center justify-between px-4 sticky top-0 z-40">
-                    <span className="font-serif-display text-xl text-foreground">insta-p8</span>
+                    <span className="font-serif-display text-xl text-foreground">InstaAuto</span>
                     <MobileNav username={username || "User"} profilePic={profilePic} onLogout={logout} />
                 </header>
 

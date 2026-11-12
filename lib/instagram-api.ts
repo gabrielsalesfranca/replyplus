@@ -1,4 +1,5 @@
 import { getSupabaseAdmin } from "@/lib/supabase-admin"
+import { getSetting } from "@/lib/settings"
 
 // Instagram API with Unified Login: graph.facebook.com + System User Access Token.
 export const GRAPH = "https://graph.facebook.com/v24.0"
@@ -6,7 +7,6 @@ export const GRAPH = "https://graph.facebook.com/v24.0"
 // With a system-user token `/me` is the system user, not the IG account, so `me/...`
 // paths are rewritten to `{igId}/...`. ponytail: first assigned account only, single-owner deploy.
 const igIds = new Map<string, Promise<string>>()
-const APP_ID = process.env.META_APP_ID || "29159315927024486"
 
 async function findIgId(token: string): Promise<string> {
   // Already connected? The users row maps token -> account id (text: ids exceed JS Number precision).
@@ -23,10 +23,11 @@ async function findIgId(token: string): Promise<string> {
   if (assigned?.data?.[0]?.id) return String(assigned.data[0].id)
 
   // Some tokens list no assigned accounts; the IG account id is still in the token's
-  // granular scopes. Read it via debug_token with the app token.
-  const secret = process.env.META_APP_SECRET || process.env.INSTAGRAM_APP_SECRET
-  const debug = secret
-    ? await fetch(`${GRAPH}/debug_token?input_token=${t}&access_token=${APP_ID}|${secret}`).then((r) => r.json())
+  // granular scopes. Read it via debug_token with the app token (app id comes from the token itself).
+  const secret = await getSetting("meta_app_secret")
+  const appId = process.env.META_APP_ID || (await fetch(`${GRAPH}/app?access_token=${t}`).then((r) => r.json()))?.id
+  const debug = secret && appId
+    ? await fetch(`${GRAPH}/debug_token?input_token=${t}&access_token=${appId}|${secret}`).then((r) => r.json())
     : null
   const scopes: any[] = debug?.data?.granular_scopes ?? []
   const id = scopes.find((s) => s.scope?.startsWith("instagram_") && s.target_ids?.length)?.target_ids?.[0]

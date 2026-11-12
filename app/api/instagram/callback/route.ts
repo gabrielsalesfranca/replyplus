@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}))
     const accessToken = (typeof body?.token === "string" && body.token.trim()) || process.env.IG_ACCESS_TOKEN
-    if (!accessToken) throw new Error("IG_ACCESS_TOKEN not set")
+    if (!accessToken) throw new Error("cole o token gerado no painel da Meta")
     const q = `access_token=${encodeURIComponent(accessToken)}`
 
     const explicitId = typeof body?.igId === "string" ? body.igId.replace(/\D/g, "") : ""
