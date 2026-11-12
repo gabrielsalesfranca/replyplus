@@ -15,7 +15,7 @@ export function proxy(request: NextRequest) {
   }
   return new NextResponse("Auth required", {
     status: 401,
-    headers: { "WWW-Authenticate": 'Basic realm="InstaAuto"' },
+    headers: { "WWW-Authenticate": 'Basic realm="ReplyPlus"' },
   })
 }
 

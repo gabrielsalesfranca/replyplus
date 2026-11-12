@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/components/theme-provider"
 
 export const metadata: Metadata = {
-  title: "InstaAuto — Instagram Automation",
+  title: "ReplyPlus — respostas automáticas no Instagram",
   description: "Auto-reply to comments, DMs, and stories with keyword triggers.",
   icons: {
     icon: [

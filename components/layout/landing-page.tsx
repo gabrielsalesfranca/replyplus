@@ -76,7 +76,7 @@ export function LandingPage() {
           <div className="w-8 h-8 bg-[#ffe14d] text-black flex items-center justify-center rounded-lg">
             <Zap className="w-4 h-4" strokeWidth={2.5} />
           </div>
-          <h1 className="text-xl font-bold">InstaAuto</h1>
+          <h1 className="text-xl font-bold">ReplyPlus</h1>
         </header>
         <p className="text-neutral-400 text-sm">
           Respostas automáticas no Instagram por palavra-chave, na DM e nos comentários. Esta instalação é sua: os dados

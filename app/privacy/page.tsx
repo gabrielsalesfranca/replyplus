@@ -6,7 +6,7 @@ export default function PrivacyPage() {
 
       <section className="space-y-4">
         <p>
-          This is a self-hosted installation of InstaAuto, an open-source tool, run by the owner of the
+          This is a self-hosted installation of ReplyPlus, an open-source tool, run by the owner of the
           connected Instagram account for their own use. It uses the Instagram API to auto-reply to
           messages and comments on that account.
         </p>

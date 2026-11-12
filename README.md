@@ -1,4 +1,4 @@
-# InstaAuto
+# ReplyPlus
 
 Respostas automáticas no Instagram, de graça e no seu próprio servidor. É uma alternativa aberta ao ManyChat:
 
@@ -20,12 +20,12 @@ No app do Instagram: Configurações → Tipo de conta e ferramentas → mudar p
 
 ### 2. Botão de deploy
 
-[![Deploy na Vercel](https://vercel.com/button)](__DEPLOY_URL__)
+[![Deploy na Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fgabrielsalesfranca%2Freplyplus&project-name=replyplus&repository-name=replyplus&env=DASHBOARD_PASSWORD&envDescription=Invente%20a%20senha%20do%20seu%20painel&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22supabase%22%2C%22productSlug%22%3A%22supabase%22%7D%5D)
 
 1. Clique no botão e entre na Vercel com o GitHub.
 2. Quando pedir, crie o banco **Supabase** (plano grátis, região São Paulo). A Vercel liga o banco ao projeto sozinha.
 3. Em `DASHBOARD_PASSWORD`, invente a senha do seu painel.
-4. Clique em **Deploy** e espere uns 2 minutos. Anote o endereço do seu site, algo como `https://instaauto-seunome.vercel.app`.
+4. Clique em **Deploy** e espere uns 2 minutos. Anote o endereço do seu site, algo como `https://replyplus-seunome.vercel.app`.
 
 As tabelas do banco são criadas sozinhas durante o deploy.
 
