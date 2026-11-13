@@ -220,7 +220,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
           if (b.type === "web_url") {
             let cleanUrl = b.url?.trim() || ""
             if (cleanUrl.startsWith("https://https://")) cleanUrl = cleanUrl.replace("https://https://", "https://")
-            return { type: "web_url" as const, title: b.title, url: cleanUrl }
+            return { type: "web_url" as const, title: b.title.trim() || (cleanUrl ? "Abrir link" : ""), url: cleanUrl }
           }
           return { type: "postback" as const, title: b.title, payload: b.payload }
         })
@@ -851,9 +851,9 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                             <p className="text-xs font-bold text-foreground line-clamp-1">{cardTitle || "Título do card"}</p>
                             {cardSubtitle && <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2 leading-tight">{cardSubtitle}</p>}
                           </div>
-                          {buttons.filter((b) => b.title).map((b) => (
+                          {buttons.filter((b) => b.title.trim() || (b.type === "web_url" && b.url?.trim())).map((b) => (
                             <div key={b.id} className="border-t border-border py-2 text-center text-[10px] font-bold text-[#3797f0] bg-white/[0.01] cursor-pointer hover:bg-white/[0.03] transition-colors">
-                              {b.title}
+                              {b.title.trim() || "Abrir link"}
                             </div>
                           ))}
                         </div>
